@@ -1,5 +1,5 @@
-# WorkFlow: PixelOS A16 (Final Hardened Version)
-name: PixelOS A16 FINAL BUILD miatoll
+# WorkFlow: Evolution X A16 FINAL BUILD miatoll
+name: Evolution X A16 DEV Build miatoll
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    # ИСПРАВЛЕНО: ФИКСИРУЕМ НА UBUNTU 22.04, ЧТОБЫ БЫЛИ ВСЕ 32-БИТНЫЕ ПАКЕТЫ!
+    # ФИКС: Ubuntu 22.04 для совместимости пакетов AOSP
     runs-on: ubuntu-22.04
     
     steps:
@@ -24,19 +24,18 @@ jobs:
 
     - name: 🛠️ Настройка окружения (Установка пакетов)
       run: |
-        # На ubuntu-22.04 эти пакеты ЕСТЬ, и установка пройдет чисто.
         sudo apt-get update
         sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
 
-    - name: 🔄 Инициализация репо (База PixelOS A16)
+    - name: 🔄 Инициализация репо (База Evolution X A16)
       run: |
         git config --global user.name "fitapchan"
         git config --global user.email "arolan394@gmail.com"
 
-        # ВОЗВРАЩЕНО: Берем ветку sixteen, как ты и просил.
-        repo init -u https://github.com/PixelOS-AOSP/android_manifest -b sixteen --git-lfs 
+        # НОВОЕ: Evolution X Manifest, пробуем ветку sixteen (A16)
+        repo init -u https://github.com/Evolution-X/manifest -b sixteen --git-lfs 
 
-    - name: ⚙️ Внедряем A16 Чертежи для miatoll (БРОНЕБОЙНАЯ СХЕМА)
+    - name: ⚙️ Внедряем A16 Чертежи для miatoll (Твои чертежи)
       run: |
         mkdir -p .repo/local_manifests
         
@@ -61,7 +60,8 @@ jobs:
     - name: 🏗️ Запуск сборки
       run: |
         source build/envsetup.sh
-        lunch aosp_miatoll-userdebug
+        # НОВОЕ: Цель для сборки Evolution X
+        lunch evolution_miatoll-userdebug
         
         # Настройка CCACHE для ускорения
         export CCACHE_DIR=/home/runner/ccache
@@ -75,6 +75,6 @@ jobs:
     - name: 📤 Загрузка готовой прошивки (Артефакта)
       uses: actions/upload-artifact@v4
       with:
-        name: PixelOS-miatoll-A16-TEST
+        name: EvolutionX-miatoll-A16-TEST
         path: out/target/product/miatoll/*.zip
         
