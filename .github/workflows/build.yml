@@ -1,44 +1,43 @@
-# Это WorkFlow для сборки ТЕСТОВОЙ PixelOS A16 (Самый свежий движ)
-name: PixelOS A16 DEV Build for miatoll
+# WorkFlow: PixelOS A16 (Final Hardened Version)
+name: PixelOS A16 FINAL BUILD miatoll
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch: # Запуск вручную
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 🧹 Увеличиваем место и Swap (Обязательно для A16!)
+    - name: 🧹 Увеличение места и Swap (Критично)
       uses: easimon/maximize-build-space@master
       with:
         root-reserve-mb: 2048
-        swap-size-mb: 8192 # Даем 8GB SWAP, чтобы не вылететь
+        swap-size-mb: 8192
 
     - name: 💾 Чек-аут репозитория
       uses: actions/checkout@v4
 
-    - name: 🛠️ Настройка окружения
+    - name: 🛠️ Настройка окружения (Установка пакетов)
       run: |
-        # Устанавливаем все инструменты
         sudo apt-get update
         sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
 
-    - name: 🔄 Инициализация и синхронизация репо (База PixelOS A16)
+    - name: 🔄 Инициализация репо (База PixelOS A16)
       run: |
         git config --global user.name "fitapchan"
-        git config --global user.email "arolan394@gmail.com" # Твоя рабочая почта
+        git config --global user.email "arolan394@gmail.com" # Твоя почта
 
-        # Используем официальный манифест PixelOS A16
+        # Официальный манифест A16
         repo init -u https://github.com/PixelOS-AOSP/manifest -b sixteen --git-lfs 
 
-    - name: ⚙️ Внедряем A16 Чертежи для miatoll (Твой код в XML)
+    - name: ⚙️ Внедряем A16 Чертежи для miatoll (ЧИСТАЯ XML-СХЕМА)
       run: |
         mkdir -p .repo/local_manifests
-        cat <<EOF > .repo/local_manifests/miatoll_a16.xml
+        cat > .repo/local_manifests/miatoll_a16.xml << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="miatoll720g" fetch="https://github.com/Miatoll720G/" />
@@ -67,7 +66,7 @@ EOF
         source build/envsetup.sh
         lunch aosp_miatoll-userdebug
         
-        # Настройка CCACHE для ускорения (50 ГБ кэша)
+        # Настройка CCACHE для ускорения
         export CCACHE_DIR=/home/runner/ccache
         export CCACHE_EXEC=/usr/bin/ccache
         ccache -M 50G
