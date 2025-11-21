@@ -1,0 +1,83 @@
+# Это WorkFlow для сборки ТЕСТОВОЙ PixelOS A16 (Самый свежий движ)
+name: PixelOS A16 DEV Build for miatoll
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Запуск вручную
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🧹 Увеличиваем место и Swap (Обязательно для A16!)
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 2048
+        swap-size-mb: 8192 # Даем 8GB SWAP, чтобы не вылететь
+
+    - name: 💾 Чек-аут репозитория
+      uses: actions/checkout@v4
+
+    - name: 🛠️ Настройка окружения
+      run: |
+        # Устанавливаем все инструменты
+        sudo apt-get update
+        sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+
+    - name: 🔄 Инициализация и синхронизация репо (База PixelOS A16)
+      run: |
+        git config --global user.name "fitapchan"
+        git config --global user.email "arolan394@gmail.com" # Твоя рабочая почта
+
+        # Используем официальный манифест PixelOS A16
+        repo init -u https://github.com/PixelOS-AOSP/manifest -b sixteen --git-lfs 
+
+    - name: ⚙️ Внедряем A16 Чертежи для miatoll (Твой код в XML)
+      run: |
+        mkdir -p .repo/local_manifests
+        cat <<EOF > .repo/local_manifests/miatoll_a16.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="miatoll720g" fetch="https://github.com/Miatoll720G/" />
+  
+  <project path="device/xiaomi/miatoll" name="device_xiaomi_miatoll" remote="miatoll720g" revision="los" />
+  <project path="device/xiaomi/sm6250-common" name="device_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />
+
+  <project path="vendor/xiaomi/miatoll" name="vendor_xiaomi_miatoll" remote="miatoll720g" revision="los" />
+  <project path="vendor/xiaomi/sm6250-common" name="vendor_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />
+  <project path="vendor/xiaomi/miuicamera-miatoll" name="vendor_xiaomi_miuicamera-miatoll" remote="miatoll720g" revision="16" />
+
+  <project path="kernel/xiaomi/sm6250" name="kernel_sm6250" remote="miatoll720g" revision="16" />
+
+  <project path="hardware/xiaomi" name="LineageOS/android_hardware_xiaomi" remote="github" revision="lineage-23.0" />
+  <project path="hardware/sony/timekeep" name="LineageOS/android_hardware_sony_timekeep" remote="github" revision="lineage-22.2" />
+
+</manifest>
+EOF
+
+    - name: 🌐 Запускаем синхронизацию (Тянем ВСЁ)
+      run: |
+        repo sync -j$(nproc --all) --force-sync --no-tags --no-clone-bundle --optimized-fetch --retry 3
+
+    - name: 🏗️ Запуск сборки
+      run: |
+        source build/envsetup.sh
+        lunch aosp_miatoll-userdebug
+        
+        # Настройка CCACHE для ускорения (50 ГБ кэша)
+        export CCACHE_DIR=/home/runner/ccache
+        export CCACHE_EXEC=/usr/bin/ccache
+        ccache -M 50G
+        ccache -o
+
+        # Сама команда сборки!
+        make -j$(nproc --all) otapackage
+
+    - name: 📤 Загрузка готовой прошивки (Артефакта)
+      uses: actions/upload-artifact@v4
+      with:
+        name: PixelOS-miatoll-A16-TEST
+        path: out/target/product/miatoll/*.zip
