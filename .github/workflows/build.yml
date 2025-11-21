@@ -34,7 +34,7 @@ jobs:
         git config --global user.email "arolan394@gmail.com"
 
         # ВОЗВРАЩЕНО: Берем ветку sixteen, как ты и просил.
-        repo init -u https://github.com/PixelOS-AOSP/manifest -b sixteen --git-lfs 
+        repo init -u https://github.com/PixelOS-AOSP/android_manifest -b sixteen --git-lfs 
 
     - name: ⚙️ Внедряем A16 Чертежи для miatoll (БРОНЕБОЙНАЯ СХЕМА)
       run: |
