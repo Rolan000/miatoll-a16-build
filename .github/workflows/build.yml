@@ -34,28 +34,23 @@ jobs:
         # Официальный манифест A16
         repo init -u https://github.com/PixelOS-AOSP/manifest -b sixteen --git-lfs 
 
-    - name: ⚙️ Внедряем A16 Чертежи для miatoll (ЧИСТАЯ XML-СХЕМА)
+    - name: ⚙️ Внедряем A16 Чертежи для miatoll (БРОНЕБОЙНАЯ СХЕМА)
       run: |
         mkdir -p .repo/local_manifests
-        cat > .repo/local_manifests/miatoll_a16.xml << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest>
-  <remote name="miatoll720g" fetch="https://github.com/Miatoll720G/" />
-  
-  <project path="device/xiaomi/miatoll" name="device_xiaomi_miatoll" remote="miatoll720g" revision="los" />
-  <project path="device/xiaomi/sm6250-common" name="device_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />
-
-  <project path="vendor/xiaomi/miatoll" name="vendor_xiaomi_miatoll" remote="miatoll720g" revision="los" />
-  <project path="vendor/xiaomi/sm6250-common" name="vendor_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />
-  <project path="vendor/xiaomi/miuicamera-miatoll" name="vendor_xiaomi_miuicamera-miatoll" remote="miatoll720g" revision="16" />
-
-  <project path="kernel/xiaomi/sm6250" name="kernel_sm6250" remote="miatoll720g" revision="16" />
-
-  <project path="hardware/xiaomi" name="LineageOS/android_hardware_xiaomi" remote="github" revision="lineage-23.0" />
-  <project path="hardware/sony/timekeep" name="LineageOS/android_hardware_sony_timekeep" remote="github" revision="lineage-22.2" />
-
-</manifest>
-EOF
+        
+        # Используем безопасный printf, чтобы избежать проблем с пробелами YAML
+        printf "%s\n" '<?xml version="1.0" encoding="UTF-8"?>' \
+        '<manifest>' \
+        '  <remote name="miatoll720g" fetch="https://github.com/Miatoll720G/" />' \
+        '  <project path="device/xiaomi/miatoll" name="device_xiaomi_miatoll" remote="miatoll720g" revision="los" />' \
+        '  <project path="device/xiaomi/sm6250-common" name="device_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />' \
+        '  <project path="vendor/xiaomi/miatoll" name="vendor_xiaomi_miatoll" remote="miatoll720g" revision="los" />' \
+        '  <project path="vendor/xiaomi/sm6250-common" name="vendor_xiaomi_sm6250-common" remote="miatoll720g" revision="los" />' \
+        '  <project path="vendor/xiaomi/miuicamera-miatoll" name="vendor_xiaomi_miuicamera-miatoll" remote="miatoll720g" revision="16" />' \
+        '  <project path="kernel/xiaomi/sm6250" name="kernel_sm6250" remote="miatoll720g" revision="16" />' \
+        '  <project path="hardware/xiaomi" name="LineageOS/android_hardware_xiaomi" remote="github" revision="lineage-23.0" />' \
+        '  <project path="hardware/sony/timekeep" name="LineageOS/android_hardware_sony_timekeep" remote="github" revision="lineage-22.2" />' \
+        '</manifest>' > .repo/local_manifests/miatoll_a16.xml
 
     - name: 🌐 Запускаем синхронизацию (Тянем ВСЁ)
       run: |
