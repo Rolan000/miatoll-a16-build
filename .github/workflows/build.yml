@@ -9,7 +9,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # ИСПРАВЛЕНО: ФИКСИРУЕМ НА UBUNTU 22.04, ЧТОБЫ БЫЛИ ВСЕ 32-БИТНЫЕ ПАКЕТЫ!
+    runs-on: ubuntu-22.04
     
     steps:
     - name: 🧹 Увеличение места и Swap (Критично)
@@ -23,22 +24,23 @@ jobs:
 
     - name: 🛠️ Настройка окружения (Установка пакетов)
       run: |
+        # На ubuntu-22.04 эти пакеты ЕСТЬ, и установка пройдет чисто.
         sudo apt-get update
         sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev libelf-dev liblz4-tool libncurses5 libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
 
     - name: 🔄 Инициализация репо (База PixelOS A16)
       run: |
         git config --global user.name "fitapchan"
-        git config --global user.email "arolan394@gmail.com" # Твоя почта
+        git config --global user.email "arolan394@gmail.com"
 
-        # Официальный манифест A16
+        # ВОЗВРАЩЕНО: Берем ветку sixteen, как ты и просил.
         repo init -u https://github.com/PixelOS-AOSP/manifest -b sixteen --git-lfs 
 
     - name: ⚙️ Внедряем A16 Чертежи для miatoll (БРОНЕБОЙНАЯ СХЕМА)
       run: |
         mkdir -p .repo/local_manifests
         
-        # Используем безопасный printf, чтобы избежать проблем с пробелами YAML
+        # XML-схема для подключения твоих A16 чертежей
         printf "%s\n" '<?xml version="1.0" encoding="UTF-8"?>' \
         '<manifest>' \
         '  <remote name="miatoll720g" fetch="https://github.com/Miatoll720G/" />' \
