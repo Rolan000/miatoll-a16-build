@@ -33,8 +33,7 @@ jobs:
         git config --global user.email "arolan394@gmail.com"
 
         # НОВОЕ: Evolution X Manifest, пробуем ветку sixteen (A16)
-        repo init -u https://github.com/Evolution-X/manifest -b sixteen --git-lfs 
-
+        repo init -u https://github.com/Evolution-X/manifest -b bka --git-lfs
     - name: ⚙️ Внедряем A16 Чертежи для miatoll (Твои чертежи)
       run: |
         mkdir -p .repo/local_manifests
