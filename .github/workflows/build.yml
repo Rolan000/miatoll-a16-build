@@ -81,3 +81,4 @@ EOF
       with:
         name: PixelOS-miatoll-A16-TEST
         path: out/target/product/miatoll/*.zip
+        
